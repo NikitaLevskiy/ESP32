@@ -11,6 +11,9 @@
 #define Mode8bit 1
 #define Mode4bit 0
 
+#define COMMAND  0
+#define DATA     1
+
 #define RS 13
 #define E  12
 #define D7 23
@@ -73,6 +76,82 @@ void GPIOInit(int mode)
 	
 	gpio_set_level(RS, GPIO_PIN_RESET);
 	gpio_set_level(E, GPIO_PIN_RESET);
+}
+
+void Enable(void)
+{
+	gpio_set_level(E, GPIO_PIN_SET);
+	vTaskDelay(1 / portTICK_PERIOD_MS);
+	
+	gpio_set_level(E, GPIO_PIN_RESET);
+	vTaskDelay(1 / portTICK_PERIOD_MS);
+}
+
+void SendData(const unsigned char data, int index, int mode)
+{
+	if (mode == Mode8bit)
+	{
+		REG_WRITE(GPIO_OUT_REG, (index << RS)|
+								(((data & 0x80) >> 7) << D7)|(((data & 0x40) >> 6) << D6)|
+		                        (((data & 0x20) >> 5) << D5)|(((data & 0x10) >> 4) << D4)|
+		                        (((data & 0x08) >> 3) << D3)|(((data & 0x04) >> 2) << D2)|
+								(((data & 0x02) >> 1) << D1)|(((data & 0x01) >> 0) << D0));
+		Enable();
+	}
+	else
+	{
+		unsigned char temph = data >> 4;
+		unsigned char templ = data & 0x0F;
+		
+		REG_WRITE(GPIO_OUT_REG, (index << RS)|
+								(((temph & 0x8) >> 3) << D7)|(((temph & 0x4) >> 2) << D6)|
+		                        (((temph & 0x2) >> 1) << D5)|(((temph & 0x1) >> 0) << D4));
+		Enable();
+		
+		REG_WRITE(GPIO_OUT_REG, (index << RS)|
+								(((templ & 0x8) >> 3) << D7)|(((templ & 0x4) >> 2) << D6)|
+		                        (((templ & 0x2) >> 1) << D5)|(((templ & 0x1) >> 0) << D4));
+		Enable();
+	}
+	
+	vTaskDelay(10 / portTICK_PERIOD_MS);
+}
+
+void DisplayMode(int mode)
+{
+	int delay[] = {50, 5, 1, 1, 1, 1, 1, 1, 1};
+	unsigned char array8bit[] = {0x30, 0x30, 0x30, 0x38, 0x08, 0x01, 0x06, 0x0C};
+	unsigned char array4bit[] = {0x03, 0x03, 0x03, 0x02, 0x28, 0x08, 0x01, 0x06, 0x0C};
+	
+	if (mode == Mode8bit)
+	{
+		for (int i = 0; i < 8; i++)
+		{
+			vTaskDelay(delay[i] / portTICK_PERIOD_MS);
+			SendData(array8bit[i], COMMAND, mode);
+		}
+	}
+	else
+	{
+		for (int i = 0; i < 9; i++)
+		{
+			vTaskDelay(delay[i] / portTICK_PERIOD_MS);
+			
+			if (i < 4)
+			{
+				REG_WRITE(GPIO_OUT_REG, (COMMAND << RS)|
+										(((array4bit[i] & 0x8) >> 3) << D7)|(((array4bit[i] & 0x4) >> 2) << D6)|
+										(((array4bit[i] & 0x2) >> 1) << D5)|(((array4bit[i] & 0x1) >> 0) << D4));
+				Enable();
+			}
+			else
+			{
+				SendData(array4bit[i], COMMAND, mode);
+			}
+		}
+	}
+	
+	vTaskDelay(10 / portTICK_PERIOD_MS);
 }
 
 void app_main(void)
