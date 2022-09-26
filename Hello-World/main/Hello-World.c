@@ -256,6 +256,15 @@ void UARTInit(int uart)
 }
 
 void app_main(void)
-{	
+{
+	GPIOInit(mode_t);
+	UARTInit(UART);
+	DisplayMode(mode_t);
+	ViewMode(DisplayOn, CursorOff, mode_t);
 	
+	SpeakerSymbol(mode_t);
+	
+	HelloWorld(mode_t);
+	PrintOwnSymbol(SymbolAddr, mode_t);
+	Goto(1, 2, mode_t);
 }
