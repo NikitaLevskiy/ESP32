@@ -255,6 +255,27 @@ void UARTInit(int uart)
     uart_set_pin(uart, TXD_PIN, RXD_PIN, UART_PIN_NO_CHANGE, UART_PIN_NO_CHANGE);
 }
 
+void UartRx(void *arg)
+{
+	unsigned char* data = (unsigned char*) malloc(RX_BUF_SIZE+1);
+	
+	while(1)
+	{
+		int rxBytes = uart_read_bytes(UART, data, RX_BUF_SIZE, 1000 / portTICK_RATE_MS);
+		
+		if (rxBytes > 0 && rxBytes < DisplayStringLength)
+		{
+            data[rxBytes] = 0;
+			PrintString(data, mode_t);
+			Goto(1, 2, mode_t);
+        }
+		
+		vTaskDelay(1000 / portTICK_PERIOD_MS);
+	}
+	
+	free(data);
+}
+
 void app_main(void)
 {
 	GPIOInit(mode_t);
@@ -267,4 +288,6 @@ void app_main(void)
 	HelloWorld(mode_t);
 	PrintOwnSymbol(SymbolAddr, mode_t);
 	Goto(1, 2, mode_t);
+	
+	xTaskCreate(UartRx, "UartRx", RX_BUF_SIZE*2, NULL, configMAX_PRIORITIES, NULL);
 }
