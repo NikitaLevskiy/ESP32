@@ -266,8 +266,11 @@ void UartRx(void *arg)
 		if (rxBytes > 0 && rxBytes < DisplayStringLength)
 		{
             data[rxBytes] = 0;
-			PrintString(data, mode_t);
+			
+			ClearDisplay(mode_t);
+			HelloWorld(mode_t);
 			Goto(1, 2, mode_t);
+			PrintString(data, mode_t);
         }
 		
 		vTaskDelay(1000 / portTICK_PERIOD_MS);
