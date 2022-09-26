@@ -42,6 +42,8 @@
 #define RX_BUF_SIZE 1024
 #define UART UART_NUM_2
 
+#define mode_t Mode8bit
+
 void GPIOInit(int mode)
 {
 	if (mode == Mode8bit)
@@ -218,6 +220,22 @@ void PrintString(const unsigned char* array, int mode)
 	while(*array)
 	{
 		SendData(*array++, DATA, mode);
+	}
+}
+
+void SpeakerSymbol(int mode)
+{
+	unsigned char symbol[] = {0x01, 0x03, 0x07, 0x0F, 0x0F, 0x07, 0x03, 0x01};
+	CGRAMSymbol(SymbolAddr, symbol, mode);
+}
+
+void HelloWorld(int mode)
+{
+	unsigned char array[] = {'H','e','l','l','o',' ','w','o','r','l','d','!'};
+	
+	for (int i = 0; i < 12; i++)
+	{
+		SendData(array[i], DATA, mode);
 	}
 }
 
