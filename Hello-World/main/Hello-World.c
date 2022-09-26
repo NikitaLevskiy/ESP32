@@ -25,6 +25,18 @@
 #define D1  4
 #define D0  2
 
+#define Clear          0x01
+#define Home           0x02
+#define DisplayOn         1
+#define DisplayOff        0
+#define CursorOn       0x02
+#define CursorOff      0x00
+#define BlinkingCursor 0x01
+
+#define DisplayStringLength 16
+
+#define SymbolAddr 0x00
+
 void GPIOInit(int mode)
 {
 	if (mode == Mode8bit)
@@ -152,6 +164,56 @@ void DisplayMode(int mode)
 	}
 	
 	vTaskDelay(10 / portTICK_PERIOD_MS);
+}
+
+void ClearDisplay(int mode)
+{
+	SendData(Clear, COMMAND, mode);
+}
+
+void CursorHome(int mode)
+{
+	SendData(Home, COMMAND, mode);
+}
+
+void ViewMode(int display, int cursor, int mode)
+{
+	SendData((1 << 3)|(display << 2)|(cursor << 0), COMMAND, mode);
+}
+
+void Goto(int x, int y, int mode)
+{	
+	SendData((1 << 7)|((y-1) << 6)|((x-1) << 0), COMMAND, mode);
+}
+
+void CGRAMSymbol(int addr, const unsigned char *array, int mode)
+{
+	SendData((1 << 6)|(addr << 0), COMMAND, mode);
+	
+	for (int i = 0; i < 8; i++)
+	{
+		SendData(*array++, DATA, mode);
+	}
+	
+	SendData(0x80, COMMAND, mode);
+}
+
+void PrintOwnSymbol(int addr, int mode)
+{
+	SendData(addr, DATA, mode);
+}
+
+void PrintSymbol(int addr, int mode)
+{
+	SendData(addr, DATA, mode);
+}
+
+void PrintString(const unsigned char* array, int mode)
+{
+	while(*array)
+	{
+		SendData(*array++, DATA, mode);
+	}
 }
 
 void app_main(void)
