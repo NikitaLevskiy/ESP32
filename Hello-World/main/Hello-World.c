@@ -223,6 +223,16 @@ void PrintString(const unsigned char* array, int mode)
 	}
 }
 
+void ClearString(int mode)
+{			
+	for (int i = 0; i < DisplayStringLength; i++)
+	{
+		PrintSymbol(' ', mode_t);
+	}
+			
+	Goto(1, 2, mode_t);
+}
+
 void SpeakerSymbol(int mode)
 {
 	unsigned char symbol[] = {0x01, 0x03, 0x07, 0x0F, 0x0F, 0x07, 0x03, 0x01};
@@ -263,14 +273,13 @@ void UartRx(void *arg)
 	{
 		int rxBytes = uart_read_bytes(UART, data, RX_BUF_SIZE, 1000 / portTICK_RATE_MS);
 		
-		if (rxBytes > 0 && rxBytes < DisplayStringLength)
+		if (rxBytes > 0 && rxBytes < DisplayStringLength+1)
 		{
             data[rxBytes] = 0;
 			
-			ClearDisplay(mode_t);
-			HelloWorld(mode_t);
-			Goto(1, 2, mode_t);
+			ClearString(mode_t);
 			PrintString(data, mode_t);
+			Goto(1, 2, mode_t);
         }
 		
 		vTaskDelay(1000 / portTICK_PERIOD_MS);
