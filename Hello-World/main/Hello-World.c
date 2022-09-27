@@ -205,11 +205,6 @@ void CGRAMSymbol(int addr, const unsigned char *array, int mode)
 	SendData(0x80, COMMAND, mode);
 }
 
-void PrintOwnSymbol(int addr, int mode)
-{
-	SendData(addr, DATA, mode);
-}
-
 void PrintSymbol(int addr, int mode)
 {
 	SendData(addr, DATA, mode);
@@ -298,7 +293,7 @@ void app_main(void)
 	SpeakerSymbol(mode_t);
 	
 	HelloWorld(mode_t);
-	PrintOwnSymbol(SymbolAddr, mode_t);
+	PrintSymbol(SymbolAddr, mode_t);
 	Goto(1, 2, mode_t);
 	
 	xTaskCreate(UartRx, "UartRx", RX_BUF_SIZE*2, NULL, configMAX_PRIORITIES, NULL);
