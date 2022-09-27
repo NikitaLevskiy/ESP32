@@ -268,7 +268,7 @@ void UartRx(void *arg)
 	{
 		int rxBytes = uart_read_bytes(UART, data, RX_BUF_SIZE, 1000 / portTICK_RATE_MS);
 		
-		if (rxBytes > 0 && rxBytes < DisplayStringLength+1)
+		if (rxBytes > 0 && rxBytes <= DisplayStringLength)
 		{
             data[rxBytes] = 0;
 			
