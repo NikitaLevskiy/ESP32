@@ -5,6 +5,7 @@
 #include "driver/uart.h"
 #include "esp_system.h"
 #include "soc/soc.h"
+#include "string.h"
 
 #define COMMAND  0
 #define DATA     1
@@ -336,18 +337,33 @@ void UartRx(void *arg)
 	free(data);
 }
 
+int UartPrintString(int uart, const char* data)
+{
+	const int len = strlen(data);
+    const int txBytes = uart_write_bytes(uart, data, len);
+	return txBytes;
+}
+
 void app_main(void)
 {
-	HD44780 HD44780_t(Mode4bit, RS_Pin, E_Pin, D7_Pin, D6_Pin, D5_Pin, D4_Pin);
-
 	UARTInit(UART);
 	
+	HD44780 HD44780_t(Mode4bit, RS_Pin, E_Pin, D7_Pin, D6_Pin, D5_Pin, D4_Pin);
+	UartPrintString(UART, "HD44780 Initialization is done!\n");
+	
 	HD44780_t.SpeakerSymbol();
+	UartPrintString(UART, "Creating own symbol!\n");
+	
 	HD44780_t.HelloWorld();
+	UartPrintString(UART, "Print Hello world string!\n");
+	
 	HD44780_t.PrintSymbol(SymbolAddr);
+	UartPrintString(UART, "Print speaker symbol!\n");
 	
     ClassParam = xQueueCreate(1, sizeof(HD44780_t));
     xQueueSend(ClassParam, &HD44780_t, 1);
+	
+	UartPrintString(UART, "Now you can print your own string!\n");
 	
 	xTaskCreate(UartRx, "UartRx", RX_BUF_SIZE*2, NULL, configMAX_PRIORITIES, NULL);
 }
