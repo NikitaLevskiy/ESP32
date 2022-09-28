@@ -293,7 +293,7 @@ class HD44780
 		}	
 };
 
-void UARTInit(int uart)
+void UARTInit(const int uart)
 {
 	uart_config_t uart_config = {
         .baud_rate = 115200,
@@ -307,6 +307,13 @@ void UARTInit(int uart)
 	uart_driver_install(uart, RX_BUF_SIZE * 2, 0, 0, NULL, 0);
     uart_param_config(uart, &uart_config);
     uart_set_pin(uart, TXD_PIN, RXD_PIN, UART_PIN_NO_CHANGE, UART_PIN_NO_CHANGE);
+}
+
+int UartPrintString(const char* data)
+{
+	const int len = strlen(data);
+    const int txBytes = uart_write_bytes(UART, data, len);
+	return txBytes;
 }
 
 QueueHandle_t ClassParam;
@@ -337,33 +344,26 @@ void UartRx(void *arg)
 	free(data);
 }
 
-int UartPrintString(int uart, const char* data)
-{
-	const int len = strlen(data);
-    const int txBytes = uart_write_bytes(uart, data, len);
-	return txBytes;
-}
-
 void app_main(void)
 {
 	UARTInit(UART);
 	
 	HD44780 HD44780_t(Mode4bit, RS_Pin, E_Pin, D7_Pin, D6_Pin, D5_Pin, D4_Pin);
-	UartPrintString(UART, "HD44780 Initialization is done!\n");
+	UartPrintString("HD44780 Initialization is done!\n");
 	
 	HD44780_t.SpeakerSymbol();
-	UartPrintString(UART, "Creating own symbol!\n");
+	UartPrintString("Creating own symbol!\n");
 	
 	HD44780_t.HelloWorld();
-	UartPrintString(UART, "Print Hello world string!\n");
+	UartPrintString("Print Hello world string!\n");
 	
 	HD44780_t.PrintSymbol(SymbolAddr);
-	UartPrintString(UART, "Print speaker symbol!\n");
+	UartPrintString("Print speaker symbol!\n");
 	
     ClassParam = xQueueCreate(1, sizeof(HD44780_t));
     xQueueSend(ClassParam, &HD44780_t, 1);
 	
-	UartPrintString(UART, "Now you can print your own string!\n");
+	UartPrintString("Now you can print your own string!\n");
 	
 	xTaskCreate(UartRx, "UartRx", RX_BUF_SIZE*2, NULL, configMAX_PRIORITIES, NULL);
 }
