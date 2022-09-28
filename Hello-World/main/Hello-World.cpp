@@ -64,7 +64,7 @@ class HD44780
 			vTaskDelay(1 / portTICK_PERIOD_MS);
 		}
 		
-		void SendData(const unsigned char data, int index)
+		void SendData(const unsigned char& data, const int& index)
 		{	
 			if (mode)
 			{
@@ -136,8 +136,8 @@ class HD44780
 		
 			gpio_config(&conf_gpio);
 				
-			int delay[] = {50, 5, 1, 1, 1, 1, 1, 1};
-			unsigned char array[] = {0x30, 0x30, 0x30, 0x38, 0x08, 0x01, 0x06, 0x0C};
+			const int delay[] = {50, 5, 1, 1, 1, 1, 1, 1};
+			const unsigned char array[] = {0x30, 0x30, 0x30, 0x38, 0x08, 0x01, 0x06, 0x0C};
 				
 			for (int i = 0; i < 8; i++)
 			{
@@ -179,8 +179,8 @@ class HD44780
 		
 				gpio_config(&conf_gpio);
 				
-				int delay[] = {50, 5, 1, 1, 1, 1, 1, 1, 1};
-				unsigned char array[] = {0x03, 0x03, 0x03, 0x02, 0x28, 0x08, 0x01, 0x06, 0x0C};
+				const int delay[] = {50, 5, 1, 1, 1, 1, 1, 1, 1};
+				const unsigned char array[] = {0x03, 0x03, 0x03, 0x02, 0x28, 0x08, 0x01, 0x06, 0x0C};
 				
 				for (int i = 0; i < 9; i++)
 				{
@@ -228,17 +228,17 @@ class HD44780
 			SendData(Home, COMMAND);
 		}
 		
-		void ViewMode(int display, int cursor)
+		void ViewMode(const int& display, const int& cursor)
 		{
 			SendData((1 << 3)|(display << 2)|(cursor << 0), COMMAND);
 		}
 		
-		void Goto(int x, int y)
+		void Goto(const int& x, const int& y)
 		{	
 			SendData((1 << 7)|((y-1) << 6)|((x-1) << 0), COMMAND);
 		}
 		
-		void CGRAMSymbol(int addr, const unsigned char *array)
+		void CGRAMSymbol(const int& addr, const unsigned char *array)
 		{
 			SendData((1 << 6)|(addr << 0), COMMAND);
 			
@@ -250,7 +250,7 @@ class HD44780
 			SendData(0x80, COMMAND);
 		}
 		
-		void PrintSymbol(int addr)
+		void PrintSymbol(const int& addr)
 		{
 			SendData(addr, DATA);
 		}
@@ -263,7 +263,7 @@ class HD44780
 			}
 		}
 		
-		void ClearString(int string)
+		void ClearString(const int& string)
 		{			
 			for (int i = 0; i < DisplayStringLength; i++)
 			{
@@ -275,13 +275,13 @@ class HD44780
 		
 		void SpeakerSymbol(void)
 		{
-			unsigned char symbol[] = {0x01, 0x03, 0x07, 0x0F, 0x0F, 0x07, 0x03, 0x01};
+			const unsigned char symbol[] = {0x01, 0x03, 0x07, 0x0F, 0x0F, 0x07, 0x03, 0x01};
 			CGRAMSymbol(SymbolAddr, symbol);
 		}
 
 		void HelloWorld(void)
 		{
-			unsigned char array[] = {'H','e','l','l','o',' ','w','o','r','l','d','!'};
+			const unsigned char array[] = {'H','e','l','l','o',' ','w','o','r','l','d','!'};
 			
 			for (int i = 0; i < 12; i++)
 			{
@@ -317,7 +317,7 @@ void UartRx(void *arg)
 	
 	while(1)
 	{
-		int rxBytes = uart_read_bytes(UART, data, RX_BUF_SIZE, 1000 / portTICK_RATE_MS);
+		const int rxBytes = uart_read_bytes(UART, data, RX_BUF_SIZE, 1000 / portTICK_RATE_MS);
 		
 		if (rxBytes > 0 && rxBytes <= DisplayStringLength)
 		{
