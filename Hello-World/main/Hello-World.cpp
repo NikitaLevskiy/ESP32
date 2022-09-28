@@ -264,7 +264,9 @@ class HD44780
 		}
 		
 		void ClearString(const int& string)
-		{			
+		{	
+			Goto(1, string);
+		
 			for (int i = 0; i < DisplayStringLength; i++)
 			{
 				PrintSymbol(' ');
@@ -343,7 +345,6 @@ void app_main(void)
 	HD44780_t.SpeakerSymbol();
 	HD44780_t.HelloWorld();
 	HD44780_t.PrintSymbol(SymbolAddr);
-	HD44780_t.Goto(1, 2);
 	
     ClassParam = xQueueCreate(1, sizeof(HD44780_t));
     xQueueSend(ClassParam, &HD44780_t, 1);
