@@ -66,8 +66,8 @@ class HD44780
 			vTaskDelay(1 / portTICK_PERIOD_MS);
 		}
 		
-		void SendData(const unsigned char& data, const int& index)
-		{	
+		void SendData(const char& data, const int& index)
+		{
 			if (mode)
 			{
 				REG_WRITE(GPIO_OUT_REG, (index << RS)|
@@ -244,7 +244,7 @@ class HD44780
 			SendData((1 << 7)|((y-1) << 6)|((x-1) << 0), COMMAND);
 		}
 		
-		void CGRAMSymbol(const int& addr, const unsigned char* array)
+		void CGRAMSymbol(const int& addr, const char* array)
 		{
 			SendData((1 << 6)|(addr << 0), COMMAND);
 			
@@ -261,11 +261,13 @@ class HD44780
 			SendData(addr, DATA);
 		}
 		
-		void PrintString(const unsigned char* array)
+		void PrintString(const char* array)
 		{
-			while(*array)
+			const int len = strlen(array);
+			
+			for (int i = 0; i < len; i++)
 			{
-				SendData(*array++, DATA);
+				PrintSymbol(array[i]);
 			}
 		}
 		
@@ -283,18 +285,13 @@ class HD44780
 		
 		void SpeakerSymbol(void)
 		{
-			const unsigned char symbol[] = {0x01, 0x03, 0x07, 0x0F, 0x0F, 0x07, 0x03, 0x01};
+			const char symbol[] = {0x01, 0x03, 0x07, 0x0F, 0x0F, 0x07, 0x03, 0x01};
 			CGRAMSymbol(SymbolAddr, symbol);
 		}
 
 		void HelloWorld(void)
 		{
-			const unsigned char array[] = {'H','e','l','l','o',' ','w','o','r','l','d','!'};
-			
-			for (int i = 0; i < 12; i++)
-			{
-				SendData(array[i], DATA);
-			}
+			PrintString("Hello world!");
 		}	
 };
 
@@ -337,7 +334,7 @@ QueueHandle_t ClassParam;
 
 void UartRx(void *arg)
 {
-	unsigned char* data = (unsigned char*) malloc(RX_BUF_SIZE+1);
+	char* data = (char*) malloc(RX_BUF_SIZE+1);
 	
 	HD44780 display;
 	xQueueReceive(ClassParam, &display, portMAX_DELAY);
