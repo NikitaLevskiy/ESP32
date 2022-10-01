@@ -55,6 +55,7 @@ class HD44780
 		int mode;
 		int RS, E, D7, D6, D5, D4,
 		           D3, D2, D1, D0;
+		gpio_config_t conf_gpio;
 		
 		void Enable(void)
 		{
@@ -124,16 +125,14 @@ class HD44780
 			gpio_pad_select_gpio(D2);
 			gpio_pad_select_gpio(D1);
 			gpio_pad_select_gpio(D0);
-				
-			const gpio_config_t conf_gpio = {	
-				.pin_bit_mask = (long long unsigned int)((1 << E)|(1 << RS)|
-								                         (1 << D7)|(1 << D6)|(1 << D5)|(1 << D4)|
-								                         (1 << D3)|(1 << D2)|(1 << D1)|(1 << D0)),
-				.mode = GPIO_MODE_OUTPUT,
-				.pull_up_en = (gpio_pullup_t)GPIO_PULLUP_DISABLE,
-				.pull_down_en = (gpio_pulldown_t)GPIO_PULLDOWN_DISABLE,
-				.intr_type = (gpio_int_type_t)GPIO_PIN_INTR_DISABLE
-			};
+			
+			conf_gpio.pin_bit_mask = (long long unsigned int)((1 << E)|(1 << RS)|
+								                              (1 << D7)|(1 << D6)|(1 << D5)|(1 << D4)|
+								                              (1 << D3)|(1 << D2)|(1 << D1)|(1 << D0));
+			conf_gpio.mode = GPIO_MODE_OUTPUT;
+			conf_gpio.pull_up_en = (gpio_pullup_t)GPIO_PULLUP_DISABLE;
+			conf_gpio.pull_down_en = (gpio_pulldown_t)GPIO_PULLDOWN_DISABLE;
+			conf_gpio.intr_type = (gpio_int_type_t)GPIO_PIN_INTR_DISABLE;
 		
 			gpio_config(&conf_gpio);
 				
@@ -169,14 +168,12 @@ class HD44780
 				gpio_pad_select_gpio(D5);
 				gpio_pad_select_gpio(D4);
 				
-				const gpio_config_t conf_gpio = {	
-					.pin_bit_mask = (long long unsigned int)((1 << E)|(1 << RS)|
-									                         (1 << D7)|(1 << D6)|(1 << D5)|(1 << D4)),
-					.mode = GPIO_MODE_OUTPUT,
-					.pull_up_en = (gpio_pullup_t)GPIO_PULLUP_DISABLE,
-					.pull_down_en = (gpio_pulldown_t)GPIO_PULLDOWN_DISABLE,
-					.intr_type = (gpio_int_type_t)GPIO_PIN_INTR_DISABLE
-				};
+				conf_gpio.pin_bit_mask = (long long unsigned int)((1 << E)|(1 << RS)|
+								                                  (1 << D7)|(1 << D6)|(1 << D5)|(1 << D4));
+				conf_gpio.mode = GPIO_MODE_OUTPUT;
+				conf_gpio.pull_up_en = (gpio_pullup_t)GPIO_PULLUP_DISABLE;
+				conf_gpio.pull_down_en = (gpio_pulldown_t)GPIO_PULLDOWN_DISABLE;
+				conf_gpio.intr_type = (gpio_int_type_t)GPIO_PIN_INTR_DISABLE;
 		
 				gpio_config(&conf_gpio);
 				
@@ -217,6 +214,14 @@ class HD44780
 			D2 = 0;
 			D1 = 0;
 			D0 = 0;
+			
+			conf_gpio.pin_bit_mask = (long long unsigned int)((1 << E)|(1 << RS)|
+								                              (1 << D7)|(1 << D6)|(1 << D5)|(1 << D4)|
+								                              (1 << D3)|(1 << D2)|(1 << D1)|(1 << D0));
+			conf_gpio.mode = GPIO_MODE_OUTPUT;
+			conf_gpio.pull_up_en = (gpio_pullup_t)GPIO_PULLUP_DISABLE;
+			conf_gpio.pull_down_en = (gpio_pulldown_t)GPIO_PULLDOWN_DISABLE;
+			conf_gpio.intr_type = (gpio_int_type_t)GPIO_PIN_INTR_DISABLE;
 		}
 
 		void ClearDisplay(void)
@@ -298,6 +303,7 @@ class Uart
 	private:
 		
 		int uart;
+		uart_config_t uart_config;
 		
 		
 	public:
@@ -306,14 +312,12 @@ class Uart
 		{
 			uart = uart_t;
 			
-			uart_config_t uart_config = {
-				.baud_rate = 115200,
-				.data_bits = UART_DATA_8_BITS,
-				.parity = UART_PARITY_DISABLE,
-				.stop_bits = UART_STOP_BITS_1,
-				.flow_ctrl = UART_HW_FLOWCTRL_DISABLE,
-				.source_clk = UART_SCLK_APB
-			};
+			uart_config.baud_rate = 115200;
+			uart_config.data_bits = UART_DATA_8_BITS;
+			uart_config.parity = UART_PARITY_DISABLE;
+			uart_config.stop_bits = UART_STOP_BITS_1;
+			uart_config.flow_ctrl = UART_HW_FLOWCTRL_DISABLE;
+			uart_config.source_clk = UART_SCLK_APB;
 			
 			uart_driver_install(uart, BufSize * 2, 0, 0, NULL, 0);
 			uart_param_config(uart, &uart_config);
@@ -327,6 +331,7 @@ class Uart
 			return txBytes;
 		}
 };
+
 
 QueueHandle_t ClassParam;
 
