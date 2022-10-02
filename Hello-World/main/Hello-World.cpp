@@ -99,23 +99,23 @@ class HD44780_t
 	
 	public:
 	
-		HD44780_t(int mode_v, int RS_io, int EN_io, int D7_io, int D6_io, int D5_io, int D4_io,
-		                                            int D3_io, int D2_io, int D1_io, int D0_io)
+		HD44780_t(int mode_v, int RS_o, int EN_o, int D7_o, int D6_o, int D5_o, int D4_o,
+		                                          int D3_o, int D2_o, int D1_o, int D0_o)
 		{
 			if (mode_v)
 			{
 				mode = mode_v;
 			
-				RS = RS_io;
-				EN = EN_io;
-				D7 = D7_io;
-				D6 = D6_io;
-				D5 = D5_io;
-				D4 = D4_io;
-				D3 = D3_io;
-				D2 = D2_io;
-				D1 = D1_io;
-				D0 = D0_io;
+				RS = RS_o;
+				EN = EN_o;
+				D7 = D7_o;
+				D6 = D6_o;
+				D5 = D5_o;
+				D4 = D4_o;
+				D3 = D3_o;
+				D2 = D2_o;
+				D1 = D1_o;
+				D0 = D0_o;
 					
 				gpio_pad_select_gpio(RS);
 				gpio_pad_select_gpio(EN);
@@ -151,18 +151,18 @@ class HD44780_t
 			}
 		}
 		
-		HD44780_t(int mode_v, int RS_io, int EN_io, int D7_io, int D6_io, int D5_io, int D4_io)
+		HD44780_t(int mode_v, int RS_o, int EN_o, int D7_o, int D6_o, int D5_o, int D4_o)
 		{
 			if (!mode_v)
 			{
 				mode = mode_v;
 			
-				RS = RS_io;
-				EN = EN_io;
-				D7 = D7_io;
-				D6 = D6_io;
-				D5 = D5_io;
-				D4 = D4_io;
+				RS = RS_o;
+				EN = EN_o;
+				D7 = D7_o;
+				D6 = D6_o;
+				D5 = D5_o;
+				D4 = D4_o;
 				
 				gpio_pad_select_gpio(RS);
 				gpio_pad_select_gpio(EN);
