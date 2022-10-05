@@ -227,6 +227,11 @@ class HD44780_t
 			conf_gpio.intr_type = (gpio_int_type_t)GPIO_PIN_INTR_DISABLE;
 		}
 
+		~HD44780_t()
+		{
+			
+		}
+
 		void ClearDisplay(void)
 		{
 			SendData(Clear, COMMAND);
