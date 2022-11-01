@@ -2,10 +2,11 @@
 #include "freertos/FreeRTOS.h"
 #include "freertos/task.h"
 #include "freertos/queue.h"
+#include "stdint.h"
 #include <array>
 #include <iostream>
 
-constexpr char SYMBOL_ADDR = 0x00;
+constexpr int8_t SYMBOL_ADDR = 0x00;
 QueueHandle_t Object;
 
 extern "C" {
@@ -21,7 +22,7 @@ void UartRx(void *arg)
 	
 	while(1)
 	{
-		const int rxBytes = uart_read_bytes(UART, data, RX_BUF_SIZE, 100);
+		const uint8_t rxBytes = uart_read_bytes(UART, data, RX_BUF_SIZE, 100);
 		
 		if (rxBytes > 0 && rxBytes <= HD44780::ROW_LENGTH)
 		{
@@ -33,7 +34,7 @@ void UartRx(void *arg)
 			std::cout << "Hello world: " << rxBytes << " bytes received" << std::endl;
 			std::cout << "Hello world: ";
 			
-			for(int i = 0; i < rxBytes; i++)
+			for(uint8_t i = 0; i < rxBytes; i++)
 			{
 				std::cout << data[i];
 			}
@@ -65,7 +66,7 @@ void app_main(void)
 	std::cout << "Hello world: Print string" << std::endl;
 	
 	// Create your own symbol and print it
-	const std::array<char, 8> symbol {0x01, 0x03, 0x07, 0x0F, 0x0F, 0x07, 0x03, 0x01};
+	const std::array<int8_t, 8> symbol {0x01, 0x03, 0x07, 0x0F, 0x0F, 0x07, 0x03, 0x01};
 	HD44780_obj.CGRAMSymbol(SYMBOL_ADDR, symbol.data());
 	HD44780_obj.Goto(13, 1);
 	HD44780_obj.PrintSymbol(SYMBOL_ADDR);

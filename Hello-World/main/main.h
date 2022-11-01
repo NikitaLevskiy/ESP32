@@ -9,6 +9,7 @@
 #include "driver/uart.h"
 #include "soc/soc.h"
 #include "string.h"
+#include "stdint.h"
 
 namespace HD44780
 {
@@ -21,29 +22,29 @@ namespace HD44780
 	constexpr bool DATA = 1;
 	
 	// Display pins
-	constexpr int RS_Pin = 13;
-	constexpr int EN_Pin = 12;
-	constexpr int D7_Pin = 23;
-	constexpr int D6_Pin = 22;
-	constexpr int D5_Pin = 21;
-	constexpr int D4_Pin = 19;
-	constexpr int D3_Pin = 18;
-	constexpr int D2_Pin = 5;
-	constexpr int D1_Pin = 4;
-	constexpr int D0_Pin = 2;
+	constexpr uint8_t RS_Pin = 13;
+	constexpr uint8_t EN_Pin = 12;
+	constexpr uint8_t D7_Pin = 23;
+	constexpr uint8_t D6_Pin = 22;
+	constexpr uint8_t D5_Pin = 21;
+	constexpr uint8_t D4_Pin = 19;
+	constexpr uint8_t D3_Pin = 18;
+	constexpr uint8_t D2_Pin = 5;
+	constexpr uint8_t D1_Pin = 4;
+	constexpr uint8_t D0_Pin = 2;
 
 	// Display settings
 	// Mode: true - 8 bit, false - 4 bit
 	// ROW_LENGTH - display row length (16 for current display)
 	constexpr bool MODE_8_BIT = 1;
 	constexpr bool MODE_4_BIT = 0;
-	constexpr int ROW_LENGTH = 16;
+	constexpr uint8_t ROW_LENGTH = 16;
 	
 	// ClearDisplay
-	constexpr char CLEAR = 0x01;
+	constexpr int8_t CLEAR = 0x01;
 	
 	//CursorHome
-	constexpr char HOME = 0x02;
+	constexpr int8_t HOME = 0x02;
 	
 	// EntryModeSet
 	constexpr bool INC = 1;
@@ -76,22 +77,22 @@ namespace HD44780
 	class HD44780_t
 	{
 		private:
-	
+
 			bool mode;
-			int RS, EN, D7, D6, D5, D4,
-						D3, D2, D1, D0;
+			uint8_t RS, EN, D7, D6, D5, D4,
+						    D3, D2, D1, D0;
 			gpio_config_t conf_gpio;
-			
+
 			void Enable(void) const
 			{
 				gpio_set_level((gpio_num_t)EN, GPIO_PIN_SET);
 				vTaskDelay(1 / portTICK_PERIOD_MS);
-				
+
 				gpio_set_level((gpio_num_t)EN, GPIO_PIN_RESET);
 				vTaskDelay(1 / portTICK_PERIOD_MS);
 			}
 			
-			void SendData(const char& data, const bool& index) const
+			void SendData(const int8_t& data, const bool& index) const
 			{
 				if (mode)
 				{
@@ -104,8 +105,8 @@ namespace HD44780
 				}
 				else
 				{
-					char temph = data >> 4;
-					char templ = data & 0x0F;
+					int8_t temph = data >> 4;
+					int8_t templ = data & 0x0F;
 					
 					REG_WRITE(GPIO_OUT_REG, (index << RS)|
 											(((temph & 0x8) >> 3) << D7)|(((temph & 0x4) >> 2) << D6)|
@@ -124,8 +125,8 @@ namespace HD44780
 		
 		public:
 		
-			HD44780_t(bool mode_v, int RS_o, int EN_o, int D7_o, int D6_o, int D5_o, int D4_o,
-		                                               int D3_o, int D2_o, int D1_o, int D0_o)
+			HD44780_t(bool mode_v, uint8_t RS_o, uint8_t EN_o, uint8_t D7_o, uint8_t D6_o, uint8_t D5_o, uint8_t D4_o,
+		                                                       uint8_t D3_o, uint8_t D2_o, uint8_t D1_o, uint8_t D0_o)
 			{
 				mode = mode_v;
 				RS = RS_o;
@@ -150,9 +151,9 @@ namespace HD44780
 				gpio_pad_select_gpio(D1);
 				gpio_pad_select_gpio(D0);
 					
-				conf_gpio.pin_bit_mask = (long long unsigned int)((1 << EN)|(1 << RS)|
-																  (1 << D7)|(1 << D6)|(1 << D5)|(1 << D4)|
-																  (1 << D3)|(1 << D2)|(1 << D1)|(1 << D0));
+				conf_gpio.pin_bit_mask = (uint64_t)((1 << EN)|(1 << RS)|
+													(1 << D7)|(1 << D6)|(1 << D5)|(1 << D4)|
+													(1 << D3)|(1 << D2)|(1 << D1)|(1 << D0));
 				conf_gpio.mode = GPIO_MODE_OUTPUT;
 				conf_gpio.pull_up_en = (gpio_pullup_t)GPIO_PULLUP_DISABLE;
 				conf_gpio.pull_down_en = (gpio_pulldown_t)GPIO_PULLDOWN_DISABLE;
@@ -160,13 +161,13 @@ namespace HD44780
 				
 				gpio_config(&conf_gpio);
 				
-				const std::array<int, 8> delay {50, 5, 1, 1, 1, 1, 1, 1};
-				const std::array<char, 8> initCodes {0x30, 0x30, 0x30, 0x38, 0x08, 0x01, 0x06, 0x0C};
-				const int* delayPtr = delay.data();
-				const char* initCodesPtr = initCodes.data();
+				const std::array<uint8_t, 8> delay {50, 5, 1, 1, 1, 1, 1, 1};
+				const std::array<int8_t, 8> initCodes {0x30, 0x30, 0x30, 0x38, 0x08, 0x01, 0x06, 0x0C};
+				const uint8_t* delayPtr = delay.data();
+				const int8_t* initCodesPtr = initCodes.data();
 				
 						
-				for (int i = 0; i < initCodes.size(); i++)
+				for (uint8_t i = 0; i < initCodes.size(); i++)
 				{
 					vTaskDelay(delayPtr[i] / portTICK_PERIOD_MS);
 					SendData(initCodesPtr[i], COMMAND);
@@ -175,7 +176,7 @@ namespace HD44780
 				vTaskDelay(10 / portTICK_PERIOD_MS);
 			}
 			
-			HD44780_t(bool mode_v, int RS_o, int EN_o, int D7_o, int D6_o, int D5_o, int D4_o)
+			HD44780_t(bool mode_v, uint8_t RS_o, uint8_t EN_o, uint8_t D7_o, uint8_t D6_o, uint8_t D5_o, uint8_t D4_o)
 			{
 				mode = mode_v;
 				RS = RS_o;
@@ -192,8 +193,8 @@ namespace HD44780
 				gpio_pad_select_gpio(D5);
 				gpio_pad_select_gpio(D4);
 					
-				conf_gpio.pin_bit_mask = (long long unsigned int)((1 << EN)|(1 << RS)|
-																	  (1 << D7)|(1 << D6)|(1 << D5)|(1 << D4));
+				conf_gpio.pin_bit_mask = (uint64_t)((1 << EN)|(1 << RS)|
+													(1 << D7)|(1 << D6)|(1 << D5)|(1 << D4));
 				conf_gpio.mode = GPIO_MODE_OUTPUT;
 				conf_gpio.pull_up_en = (gpio_pullup_t)GPIO_PULLUP_DISABLE;
 				conf_gpio.pull_down_en = (gpio_pulldown_t)GPIO_PULLDOWN_DISABLE;
@@ -201,13 +202,13 @@ namespace HD44780
 			
 				gpio_config(&conf_gpio);
 				
-				const std::array<int, 9> delay {50, 5, 1, 1, 1, 1, 1, 1, 1};
-				const std::array<char, 9> initCodes {0x03, 0x03, 0x03, 0x02, 0x28, 0x08, 0x01, 0x06, 0x0C};
-				const int* delayPtr = delay.data();
-				const char* initCodesPtr = initCodes.data();
+				const std::array<uint8_t, 9> delay {50, 5, 1, 1, 1, 1, 1, 1, 1};
+				const std::array<int8_t, 9> initCodes {0x03, 0x03, 0x03, 0x02, 0x28, 0x08, 0x01, 0x06, 0x0C};
+				const uint8_t* delayPtr = delay.data();
+				const int8_t* initCodesPtr = initCodes.data();
 				
 					
-				for (int i = 0; i < initCodes.size(); i++)
+				for (uint8_t i = 0; i < initCodes.size(); i++)
 				{
 					vTaskDelay(delayPtr[i] / portTICK_PERIOD_MS);
 				
@@ -252,8 +253,9 @@ namespace HD44780
 				gpio_pad_select_gpio(D1);
 				gpio_pad_select_gpio(D0);
 					
-				conf_gpio.pin_bit_mask = (long long unsigned int)((1 << EN)|(1 << RS)|
-																	  (1 << D7)|(1 << D6)|(1 << D5)|(1 << D4));
+				conf_gpio.pin_bit_mask = (uint64_t)((1 << EN)|(1 << RS)|
+													(1 << D7)|(1 << D6)|(1 << D5)|(1 << D4)|
+													(1 << D3)|(1 << D2)|(1 << D1)|(1 << D0));
 				conf_gpio.mode = GPIO_MODE_OUTPUT;
 				conf_gpio.pull_up_en = (gpio_pullup_t)GPIO_PULLUP_DISABLE;
 				conf_gpio.pull_down_en = (gpio_pulldown_t)GPIO_PULLDOWN_DISABLE;
@@ -277,26 +279,26 @@ namespace HD44780
 				SendData(HOME, COMMAND);
 			}
 			
-			void PrintSymbol(const char& addr) const
+			void PrintSymbol(const int8_t& addr) const
 			{
 				SendData(addr, DATA);
 			}
 			
 			void PrintString(const char* string) const
 			{
-				const int len = strlen(string);
+				const uint8_t len = strlen(string);
 				
-				for (int i = 0; i < len; i++)
+				for (uint8_t i = 0; i < len; i++)
 				{
 					PrintSymbol(string[i]);
 				}
 			}
 			
-			void ClearString(const int& string) const
+			void ClearString(const uint8_t& string) const
 			{
 				Goto(1, string);
 				
-				for(int i = 0; i < ROW_LENGTH; i++)
+				for (uint8_t i = 0; i < ROW_LENGTH; i++)
 				{
 					PrintSymbol(' ');
 				}
@@ -324,16 +326,16 @@ namespace HD44780
 				SendData((1 << 5)|(dataLength << 4)|(numberOfLines << 3)|(font << 2), COMMAND);
 			}
 			
-			void Goto(const int& x, const int& y) const
+			void Goto(const uint8_t& x, const uint8_t& y) const
 			{	
 				SendData((1 << 7)|((y-1) << 6)|((x-1) << 0), COMMAND);
 			}
 			
-			void CGRAMSymbol(const char& addr, const char* symbol) const
+			void CGRAMSymbol(const int8_t& addr, const int8_t* symbol) const
 			{
 				SendData((1 << 6)|(addr << 0), COMMAND);
 				
-				for (int i = 0; i < 8; i++)
+				for (uint8_t i = 0; i < 8; i++)
 				{
 					SendData(symbol[i], DATA);
 				}
@@ -343,10 +345,10 @@ namespace HD44780
 	};
 }
 
-const int TX_Pin = 17;
-const int RX_Pin = 16;
-const int RX_BUF_SIZE = 1024;
-const int UART = UART_NUM_2;
+const uint8_t TX_Pin = 17;
+const uint8_t RX_Pin = 16;
+const uint8_t UART = UART_NUM_2;
+const uint16_t RX_BUF_SIZE = 1024;
 
 void UartInit(void)
 {
