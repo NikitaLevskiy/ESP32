@@ -22,16 +22,16 @@ namespace HD44780
 	constexpr bool DATA = 1;
 	
 	// Display pins
-	constexpr uint8_t RS_Pin = 13;
-	constexpr uint8_t EN_Pin = 12;
-	constexpr uint8_t D7_Pin = 23;
-	constexpr uint8_t D6_Pin = 22;
-	constexpr uint8_t D5_Pin = 21;
-	constexpr uint8_t D4_Pin = 19;
-	constexpr uint8_t D3_Pin = 18;
-	constexpr uint8_t D2_Pin = 5;
-	constexpr uint8_t D1_Pin = 4;
-	constexpr uint8_t D0_Pin = 2;
+	constexpr uint8_t RS_Pin = 23;
+	constexpr uint8_t EN_Pin = 22;
+	constexpr uint8_t D7_Pin = 5;
+	constexpr uint8_t D6_Pin = 18;
+	constexpr uint8_t D5_Pin = 19;
+	constexpr uint8_t D4_Pin = 21;
+	constexpr uint8_t D3_Pin = 0;
+	constexpr uint8_t D2_Pin = 0;
+	constexpr uint8_t D1_Pin = 0;
+	constexpr uint8_t D0_Pin = 0;
 
 	// Display settings
 	// Mode: true - 8 bit, false - 4 bit
@@ -160,20 +160,6 @@ namespace HD44780
 				conf_gpio.intr_type = (gpio_int_type_t)GPIO_PIN_INTR_DISABLE;
 				
 				gpio_config(&conf_gpio);
-				
-				const std::array<uint8_t, 8> delay {50, 5, 1, 1, 1, 1, 1, 1};
-				const std::array<int8_t, 8> initCodes {0x30, 0x30, 0x30, 0x38, 0x08, 0x01, 0x06, 0x0C};
-				const uint8_t* delayPtr = delay.data();
-				const int8_t* initCodesPtr = initCodes.data();
-				
-						
-				for (uint8_t i = 0; i < initCodes.size(); i++)
-				{
-					vTaskDelay(delayPtr[i] / portTICK_PERIOD_MS);
-					SendData(initCodesPtr[i], COMMAND);
-				}	
-						
-				vTaskDelay(10 / portTICK_PERIOD_MS);
 			}
 			
 			HD44780_t(bool mode_v, uint8_t RS_o, uint8_t EN_o, uint8_t D7_o, uint8_t D6_o, uint8_t D5_o, uint8_t D4_o)
@@ -201,72 +187,56 @@ namespace HD44780
 				conf_gpio.intr_type = (gpio_int_type_t)GPIO_PIN_INTR_DISABLE;
 			
 				gpio_config(&conf_gpio);
-				
-				const std::array<uint8_t, 9> delay {50, 5, 1, 1, 1, 1, 1, 1, 1};
-				const std::array<int8_t, 9> initCodes {0x03, 0x03, 0x03, 0x02, 0x28, 0x08, 0x01, 0x06, 0x0C};
-				const uint8_t* delayPtr = delay.data();
-				const int8_t* initCodesPtr = initCodes.data();
-				
-					
-				for (uint8_t i = 0; i < initCodes.size(); i++)
-				{
-					vTaskDelay(delayPtr[i] / portTICK_PERIOD_MS);
-				
-					if (i < 4)
-					{
-						REG_WRITE(GPIO_OUT_REG, (COMMAND << RS)|
-												(((initCodesPtr[i] & 0x8) >> 3) << D7)|(((initCodesPtr[i] & 0x4) >> 2) << D6)|
-												(((initCodesPtr[i] & 0x2) >> 1) << D5)|(((initCodesPtr[i] & 0x1) >> 0) << D4));
-						Enable();
-					}
-					else
-					{
-						SendData(initCodesPtr[i], COMMAND);
-					}
-				}
-					
-					vTaskDelay(10 / portTICK_PERIOD_MS);
-			}
-
-			HD44780_t()
-			{
-				mode = MODE_8_BIT;
-				RS = 0;
-				EN = 0;
-				D7 = 0;
-				D6 = 0;
-				D5 = 0;
-				D4 = 0;
-				D3 = 0;
-				D2 = 0;
-				D1 = 0;
-				D0 = 0;
-					
-				gpio_pad_select_gpio(RS);
-				gpio_pad_select_gpio(EN);
-				gpio_pad_select_gpio(D7);
-				gpio_pad_select_gpio(D6);
-				gpio_pad_select_gpio(D5);
-				gpio_pad_select_gpio(D4);
-				gpio_pad_select_gpio(D3);
-				gpio_pad_select_gpio(D2);
-				gpio_pad_select_gpio(D1);
-				gpio_pad_select_gpio(D0);
-					
-				conf_gpio.pin_bit_mask = (uint64_t)((1 << EN)|(1 << RS)|
-													(1 << D7)|(1 << D6)|(1 << D5)|(1 << D4)|
-													(1 << D3)|(1 << D2)|(1 << D1)|(1 << D0));
-				conf_gpio.mode = GPIO_MODE_OUTPUT;
-				conf_gpio.pull_up_en = (gpio_pullup_t)GPIO_PULLUP_DISABLE;
-				conf_gpio.pull_down_en = (gpio_pulldown_t)GPIO_PULLDOWN_DISABLE;
-				conf_gpio.intr_type = (gpio_int_type_t)GPIO_PIN_INTR_DISABLE;
-			
-				gpio_config(&conf_gpio);
 			}
 			
 			~HD44780_t()
 			{
 				
+			}
+			
+			void Init(void) const
+			{
+				if(mode == MODE_8_BIT)
+				{
+					const std::array<uint8_t, 8> delay {50, 5, 1, 1, 1, 1, 1, 1};
+					const std::array<int8_t, 8> initCodes {0x30, 0x30, 0x30, 0x38, 0x08, 0x01, 0x06, 0x0C};
+					const uint8_t* delayPtr = delay.data();
+					const int8_t* initCodesPtr = initCodes.data();
+					
+							
+					for (uint8_t i = 0; i < initCodes.size(); i++)
+					{
+						vTaskDelay(delayPtr[i] / portTICK_PERIOD_MS);
+						SendData(initCodesPtr[i], COMMAND);
+					}	
+				}
+				else if(mode == MODE_4_BIT)
+				{
+					const std::array<uint8_t, 9> delay {50, 5, 1, 1, 1, 1, 1, 1, 1};
+					const std::array<int8_t, 9> initCodes {0x03, 0x03, 0x03, 0x02, 0x28, 0x08, 0x01, 0x06, 0x0C};
+					const uint8_t* delayPtr = delay.data();
+					const int8_t* initCodesPtr = initCodes.data();
+					
+						
+					for (uint8_t i = 0; i < initCodes.size(); i++)
+					{
+						vTaskDelay(delayPtr[i] / portTICK_PERIOD_MS);
+					
+						if (i < 4)
+						{
+							REG_WRITE(GPIO_OUT_REG, (COMMAND << RS)|
+													(((initCodesPtr[i] & 0x8) >> 3) << D7)|(((initCodesPtr[i] & 0x4) >> 2) << D6)|
+													(((initCodesPtr[i] & 0x2) >> 1) << D5)|(((initCodesPtr[i] & 0x1) >> 0) << D4));
+							Enable();
+						}
+						else
+						{
+							SendData(initCodesPtr[i], COMMAND);
+						}
+					}
+				}
+				
+				vTaskDelay(10 / portTICK_PERIOD_MS);
 			}
 			
 			void Clear(void) const
