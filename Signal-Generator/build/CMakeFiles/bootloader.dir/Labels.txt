@@ -1,0 +1,13 @@
+# Target labels
+ bootloader
+# Source files and their labels
+C:/Espressif/Projects/Git/Signal-Generator/build/CMakeFiles/bootloader
+C:/Espressif/Projects/Git/Signal-Generator/build/CMakeFiles/bootloader.rule
+C:/Espressif/Projects/Git/Signal-Generator/build/CMakeFiles/bootloader-complete.rule
+C:/Espressif/Projects/Git/Signal-Generator/build/bootloader-prefix/src/bootloader-stamp/bootloader-build.rule
+C:/Espressif/Projects/Git/Signal-Generator/build/bootloader-prefix/src/bootloader-stamp/bootloader-configure.rule
+C:/Espressif/Projects/Git/Signal-Generator/build/bootloader-prefix/src/bootloader-stamp/bootloader-download.rule
+C:/Espressif/Projects/Git/Signal-Generator/build/bootloader-prefix/src/bootloader-stamp/bootloader-install.rule
+C:/Espressif/Projects/Git/Signal-Generator/build/bootloader-prefix/src/bootloader-stamp/bootloader-mkdir.rule
+C:/Espressif/Projects/Git/Signal-Generator/build/bootloader-prefix/src/bootloader-stamp/bootloader-patch.rule
+C:/Espressif/Projects/Git/Signal-Generator/build/bootloader-prefix/src/bootloader-stamp/bootloader-update.rule
