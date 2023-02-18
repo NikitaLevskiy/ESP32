@@ -4,7 +4,7 @@
 cmake_minimum_required(VERSION 3.5)
 
 file(MAKE_DIRECTORY
-  "C:/Espressif/frameworks/esp-idf-v4.4.2/components/bootloader/subproject"
+  "C:/Espressif/frameworks/esp-idf-v5.0/components/bootloader/subproject"
   "C:/Espressif/Projects/Git/Hello-World/build/bootloader"
   "C:/Espressif/Projects/Git/Hello-World/build/bootloader-prefix"
   "C:/Espressif/Projects/Git/Hello-World/build/bootloader-prefix/tmp"
@@ -17,3 +17,6 @@ set(configSubDirs )
 foreach(subDir IN LISTS configSubDirs)
     file(MAKE_DIRECTORY "C:/Espressif/Projects/Git/Hello-World/build/bootloader-prefix/src/bootloader-stamp/${subDir}")
 endforeach()
+if(cfgdir)
+  file(MAKE_DIRECTORY "C:/Espressif/Projects/Git/Hello-World/build/bootloader-prefix/src/bootloader-stamp${cfgdir}") # cfgdir has leading slash
+endif()
